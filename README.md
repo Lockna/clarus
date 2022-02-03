@@ -2,7 +2,7 @@
 Music player written in Rust used for learning purpose
 
 ## About
-Since my attention has been drawn to audio in general lately, I've always wondered how audio codecs actually work
+Since my attention has been drawn to audio in general lately, I've always wondered how audio codecs actually work.
 With this project I want to take a closer look at that and will wrap this up in a music player.
 
 This is mainly written for the learning effect and therefore I won't program an elaborate GUI, feel free to do so yourself if you want.
