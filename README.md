@@ -10,9 +10,9 @@ This is mainly written for the learning effect and therefore I won't program an 
 Additionally I will switch in the later course (also because of the learning effect) from cpal to an own written audiolib, because also one of the goals is to achieve bit-perfect audio playback which some audiophiles ask for ;)
 
 ## Components
- - `flac`
- - `mp3`
- - `playback`: Audio playback which aims for bit-perfect playback
+ - `[`flac`](./crates/flac): FLAC encoder/decoder
+ - `[`mp3`](./crates/mp3): MP3 encoder/decoder
+ - `[`playback`](./crates/playback): Audio playback which aims for bit-perfect playback
 
 ## Setup
 Coming soon
