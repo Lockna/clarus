@@ -12,3 +12,5 @@
 # Added by cargo
 
 /target
+
+/test_files/
