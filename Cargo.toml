@@ -11,3 +11,4 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 cpal = "0.13.5"
 clarus-wav = { path = "./crates/wav" }
+rodio = "0.15.0"

@@ -2,13 +2,33 @@ use byteorder::LittleEndian;
 use byteorder::ByteOrder;
 use std::str;
 
-pub fn decode(contents: Vec<u8>) {
+pub fn decode(contents: Vec<u8>) -> (u32, Vec<i16>) {
         
+        // Files from qobuz use id3v2
+
+        let mut fmt_begin = 0;
+        //let id3_size = id3_end_byte - 12;
+
+        for i in 0..contents.len() {
+                if contents[i] == 102 && contents[i+1] == 109 && contents[i+2] == 116 {
+                        fmt_begin = i;
+                        break;
+                }
+        }
+
         let riff_str = str::from_utf8(&contents[0..4]).unwrap();
+
+        if riff_str != "RIFF" {
+                println!("not a wav file");
+        }
 
         println!("{}", riff_str);
 
         let chunk_size = LittleEndian::read_u32(&contents[4..8]);
+
+        if chunk_size != contents.len() as u32 - 8{
+                println!("invalid file");
+        }
 
         println!("{}", contents.len());
 
@@ -18,23 +38,73 @@ pub fn decode(contents: Vec<u8>) {
 
         println!("{}", wave_str);
 
-        let fmt_chunk_id = str::from_utf8(&contents[12..16]).unwrap();
+        let fmt_str = str::from_utf8(&contents[fmt_begin..fmt_begin+4]).unwrap();
 
-        println!("fmt_chunk_id:{}", fmt_chunk_id);
+        println!("{}", fmt_str);
 
-        let fmt_chunk_size = LittleEndian::read_u32(&contents[16..20]);
+        let fmt_size = LittleEndian::read_u32(&contents[fmt_begin+4..fmt_begin+8]);
 
-        println!("{}", fmt_chunk_size);
+        println!("fmt_size: {}", fmt_size);
 
-        let format_code = LittleEndian::read_u16(&contents[20..22]);
+        let fmt_format_code = LittleEndian::read_u16(&contents[fmt_begin+8..fmt_begin+10]);
 
-        println!("{}", format_code);
+        println!("fmt_format_code: {}", fmt_format_code);
 
-        let number_of_channels = LittleEndian::read_u16(&contents[22..24]);
+        let fmt_num_channels = LittleEndian::read_u16(&contents[fmt_begin+10..fmt_begin+12]);
 
-        println!("{}", number_of_channels);
+        println!("fmt_num_channels: {}", fmt_num_channels);
 
-        let sample_rate = LittleEndian::read_u32(&contents[24..28]);
+        let fmt_sample_rate = LittleEndian::read_u32(&contents[fmt_begin+12..fmt_begin+16]);
 
-        println!("{}", sample_rate);
+        println!("fmt_sample_rate: {}", fmt_sample_rate);
+
+        let fmt_byte_rate = LittleEndian::read_u32(&contents[fmt_begin+16..fmt_begin+20]);
+
+        println!("fmt_byte_rate: {}", fmt_byte_rate);
+
+        let fmt_block_align = LittleEndian::read_u16(&contents[fmt_begin+20..fmt_begin+22]);
+
+        println!("fmt_block_align: {}", fmt_block_align);
+
+        let fmt_bits_sample = LittleEndian::read_u16(&contents[fmt_begin+22..fmt_begin+24]);
+
+        println!("fmt_bits_sample: {}", fmt_bits_sample);
+
+        let data_chunk_begin = fmt_begin + 24;
+
+        let data_str = str::from_utf8(&contents[data_chunk_begin..data_chunk_begin+4]).unwrap();
+
+        println!("{}", data_str);
+
+        let data_size = LittleEndian::read_u32(&contents[data_chunk_begin+4..data_chunk_begin+8]);
+
+        println!("data_size: {}", data_size);
+
+        let data_begin = data_chunk_begin + 8;
+
+        let samples = data_size / fmt_num_channels as u32 / (fmt_bits_sample as u32 / 8);
+
+        println!("all samples: {}", samples);
+
+        println!("length of song: {} seconds", samples / fmt_sample_rate);
+
+        let mut channel_data: Vec<Vec<i16>> = Vec::new();
+
+        for i in 0..fmt_num_channels {
+                channel_data.push(Vec::new());
+        }
+
+        println!("{:?}", contents.len());
+        println!("{}", data_begin);
+        println!("{}", data_size);
+
+        for i in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
+
+                let sample_value = LittleEndian::read_i16(&contents[data_begin+i as usize..2+data_begin+i as usize]);
+                channel_data[0].push(sample_value);
+
+        }
+
+        (samples/fmt_sample_rate, channel_data[0].clone())
+
 }
