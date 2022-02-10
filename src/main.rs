@@ -7,7 +7,15 @@ use std::time::Duration;
 
 fn main() {
     
-    let path = Path::new("./test_files/Sabaton - Soldier of Heaven.wav");
+    // Written by 0x6d70
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() < 2 {
+        println!("Usage: clarus <filename>");
+        return;
+    }
+
+    let path = Path::new(&args[1]);
 
     let file_contents = read_file(path).unwrap();
 
