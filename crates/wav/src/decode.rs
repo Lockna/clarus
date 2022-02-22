@@ -1,109 +1,106 @@
-use byteorder::LittleEndian;
 use byteorder::ByteOrder;
-use std::str;
-use clarus_utils::pattern;
+use byteorder::LittleEndian;
 use clarus_utils::errors::Error;
+use clarus_utils::pattern;
+use std::str;
 
 pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
-        
-        // Files from qobuz use id3v2
+    // Files from qobuz use id3v2
 
-        let fmt_start = pattern::find_signature_index(&contents, b"fmt ").unwrap();
+    let fmt_start = pattern::find_signature_index(&contents, b"fmt ").unwrap();
 
-        println!("{:?}", fmt_start);
+    println!("{:?}", fmt_start);
 
-        let riff_str = str::from_utf8(&contents[0..4]).unwrap();
+    let riff_str = str::from_utf8(&contents[0..4]).unwrap();
 
-        if riff_str != "RIFF" {
-                return Err(Error::InvalidWAVFile);
-        }
+    if riff_str != "RIFF" {
+        return Err(Error::InvalidWAVFile);
+    }
 
-        println!("{}", riff_str);
+    println!("{}", riff_str);
 
-        let chunk_size = LittleEndian::read_u32(&contents[4..8]);
+    let chunk_size = LittleEndian::read_u32(&contents[4..8]);
 
-        if chunk_size != contents.len() as u32 - 8{
-                return Err(Error::InvalidWAVFile);
-        }
+    if chunk_size != contents.len() as u32 - 8 {
+        return Err(Error::InvalidWAVFile);
+    }
 
-        println!("{}", contents.len());
+    println!("{}", contents.len());
 
-        println!("{}", chunk_size);
+    println!("{}", chunk_size);
 
-        let wave_str = str::from_utf8(&contents[8..12]).unwrap();
+    let wave_str = str::from_utf8(&contents[8..12]).unwrap();
 
-        if wave_str != "WAVE" {
-                return Err(Error::InvalidWAVFile);
-        }
+    if wave_str != "WAVE" {
+        return Err(Error::InvalidWAVFile);
+    }
 
-        println!("{}", wave_str);
+    println!("{}", wave_str);
 
-        let fmt_str = str::from_utf8(&contents[fmt_start..fmt_start+4]).unwrap();
+    let fmt_str = str::from_utf8(&contents[fmt_start..fmt_start + 4]).unwrap();
 
-        println!("{}", fmt_str);
+    println!("{}", fmt_str);
 
-        let fmt_size = LittleEndian::read_u32(&contents[fmt_start+4..fmt_start+8]);
+    let fmt_size = LittleEndian::read_u32(&contents[fmt_start + 4..fmt_start + 8]);
 
-        println!("fmt_size: {}", fmt_size);
+    println!("fmt_size: {}", fmt_size);
 
-        let fmt_format_code = LittleEndian::read_u16(&contents[fmt_start+8..fmt_start+10]);
+    let fmt_format_code = LittleEndian::read_u16(&contents[fmt_start + 8..fmt_start + 10]);
 
-        println!("fmt_format_code: {}", fmt_format_code);
+    println!("fmt_format_code: {}", fmt_format_code);
 
-        let fmt_num_channels = LittleEndian::read_u16(&contents[fmt_start+10..fmt_start+12]);
+    let fmt_num_channels = LittleEndian::read_u16(&contents[fmt_start + 10..fmt_start + 12]);
 
-        println!("fmt_num_channels: {}", fmt_num_channels);
+    println!("fmt_num_channels: {}", fmt_num_channels);
 
-        let fmt_sample_rate = LittleEndian::read_u32(&contents[fmt_start+12..fmt_start+16]);
+    let fmt_sample_rate = LittleEndian::read_u32(&contents[fmt_start + 12..fmt_start + 16]);
 
-        println!("fmt_sample_rate: {}", fmt_sample_rate);
+    println!("fmt_sample_rate: {}", fmt_sample_rate);
 
-        let fmt_byte_rate = LittleEndian::read_u32(&contents[fmt_start+16..fmt_start+20]);
+    let fmt_byte_rate = LittleEndian::read_u32(&contents[fmt_start + 16..fmt_start + 20]);
 
-        println!("fmt_byte_rate: {}", fmt_byte_rate);
+    println!("fmt_byte_rate: {}", fmt_byte_rate);
 
-        let fmt_block_align = LittleEndian::read_u16(&contents[fmt_start+20..fmt_start+22]);
+    let fmt_block_align = LittleEndian::read_u16(&contents[fmt_start + 20..fmt_start + 22]);
 
-        println!("fmt_block_align: {}", fmt_block_align);
+    println!("fmt_block_align: {}", fmt_block_align);
 
-        let fmt_bits_sample = LittleEndian::read_u16(&contents[fmt_start+22..fmt_start+24]);
+    let fmt_bits_sample = LittleEndian::read_u16(&contents[fmt_start + 22..fmt_start + 24]);
 
-        println!("fmt_bits_sample: {}", fmt_bits_sample);
+    println!("fmt_bits_sample: {}", fmt_bits_sample);
 
-        let data_chunk_begin = fmt_start + 24;
+    let data_chunk_begin = fmt_start + 24;
 
-        let data_str = str::from_utf8(&contents[data_chunk_begin..data_chunk_begin+4]).unwrap();
+    let data_str = str::from_utf8(&contents[data_chunk_begin..data_chunk_begin + 4]).unwrap();
 
-        println!("{}", data_str);
+    println!("{}", data_str);
 
-        let data_size = LittleEndian::read_u32(&contents[data_chunk_begin+4..data_chunk_begin+8]);
+    let data_size = LittleEndian::read_u32(&contents[data_chunk_begin + 4..data_chunk_begin + 8]);
 
-        println!("data_size: {}", data_size);
+    println!("data_size: {}", data_size);
 
-        let data_begin = data_chunk_begin + 8;
+    let data_begin = data_chunk_begin + 8;
 
-        let samples = data_size / fmt_num_channels as u32 / (fmt_bits_sample as u32 / 8);
+    let samples = data_size / fmt_num_channels as u32 / (fmt_bits_sample as u32 / 8);
 
-        println!("all samples: {}", samples);
+    println!("all samples: {}", samples);
 
-        println!("length of song: {} seconds", samples / fmt_sample_rate);
+    println!("length of song: {} seconds", samples / fmt_sample_rate);
 
-        // Change to stereo instead of mono channel
+    // Change to stereo instead of mono channel
 
-        let mut channel_data: Vec<i16> = Vec::new();
+    let mut channel_data: Vec<i16> = Vec::new();
 
-        println!("{:?}", contents.len());
-        println!("{}", data_begin);
-        println!("{}", data_size);
+    println!("{:?}", contents.len());
+    println!("{}", data_begin);
+    println!("{}", data_size);
 
-        for i in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
+    for i in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
+        let sample_value =
+            LittleEndian::read_i16(&contents[data_begin + i as usize..2 + data_begin + i as usize]);
 
-                let sample_value = LittleEndian::read_i16(&contents[data_begin+i as usize..2+data_begin+i as usize]);
-                
-                channel_data.push(sample_value);
-                
-        }
+        channel_data.push(sample_value);
+    }
 
-        Ok((samples/fmt_sample_rate, channel_data))
-
+    Ok((samples / fmt_sample_rate, channel_data))
 }

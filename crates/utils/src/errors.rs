@@ -2,6 +2,6 @@
 
 #[derive(Debug, Clone, Copy)]
 pub enum Error {
-        InvalidWAVFile,
-        IndexOfChunkNotFound
+    InvalidWAVFile,
+    IndexOfChunkNotFound,
 }

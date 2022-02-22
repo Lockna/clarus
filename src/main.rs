@@ -20,6 +20,10 @@ fn main() {
 
     let (song_length, channel_data) = clarus_wav::decode::decode(file_contents).unwrap();
 
+    //match clarus_wav::decode::decode(file_contents) {
+    //    Err(InvalidWAVFile) => println!("invalid"),
+    //    Ok((song_length, channel_data)) =>
+    //}
 
     let (_stream, stream_handle) = OutputStream::try_default().expect("Failed to open stream");
 
