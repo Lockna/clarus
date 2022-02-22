@@ -2,9 +2,9 @@ use byteorder::LittleEndian;
 use byteorder::ByteOrder;
 use std::str;
 use clarus_utils::pattern;
-use clarus_utils::errors;
+use clarus_utils::errors::Error;
 
-pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), errors::Error> {
+pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
         
         // Files from qobuz use id3v2
 
@@ -15,7 +15,7 @@ pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), errors::Error> {
         let riff_str = str::from_utf8(&contents[0..4]).unwrap();
 
         if riff_str != "RIFF" {
-                return Err(errors::Error::InvalidWAVFile);
+                return Err(Error::InvalidWAVFile);
         }
 
         println!("{}", riff_str);
