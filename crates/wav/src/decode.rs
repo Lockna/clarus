@@ -23,7 +23,7 @@ pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
         let chunk_size = LittleEndian::read_u32(&contents[4..8]);
 
         if chunk_size != contents.len() as u32 - 8{
-                return Err(errors::Error::InvalidWAVFile);
+                return Err(Error::InvalidWAVFile);
         }
 
         println!("{}", contents.len());
@@ -33,7 +33,7 @@ pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
         let wave_str = str::from_utf8(&contents[8..12]).unwrap();
 
         if wave_str != "WAVE" {
-                return Err(errors::Error::InvalidWAVFile);
+                return Err(Error::InvalidWAVFile);
         }
 
         println!("{}", wave_str);
