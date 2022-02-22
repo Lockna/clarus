@@ -10,3 +10,4 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 byteorder = "1.4.3"
+clarus-utils = { path = "../utils" }

@@ -124,10 +124,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "clarus-utils"
+version = "0.1.0"
+
+[[package]]
 name = "clarus-wav"
 version = "0.1.0"
 dependencies = [
  "byteorder",
+ "clarus-utils",
 ]
 
 [[package]]
