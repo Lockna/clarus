@@ -1,9 +1,8 @@
 use rodio::{buffer::SamplesBuffer, OutputStream};
-use std::fs::File;
-use std::io::Read;
 use std::path::Path;
 use std::thread;
 use std::time::Duration;
+use clarus_utils::file;
 
 fn main() {
     // Written by 0x6d70
@@ -16,7 +15,7 @@ fn main() {
 
     let path = Path::new(&args[1]);
 
-    let file_contents = read_file(path).unwrap();
+    let file_contents = file::read_file(path).unwrap();
 
     let decode_result = clarus_wav::decode::decode(file_contents);
 
@@ -42,13 +41,4 @@ fn main() {
         .expect("Failed to play");
 
     thread::sleep(Duration::from_millis(song_length as u64 * 1000));
-}
-
-fn read_file(path: &Path) -> Result<Vec<u8>, std::io::Error> {
-    let mut file = File::open(path)?;
-    let mut contents = Vec::new();
-
-    file.read_to_end(&mut contents).unwrap();
-
-    Ok(contents)
 }
