@@ -2,7 +2,10 @@ use rodio::{buffer::SamplesBuffer, OutputStream};
 use std::path::Path;
 use std::thread;
 use std::time::Duration;
-use clarus_utils::file;
+use clarus_wav::decode::WavDecoder;
+
+// ideas:
+// maybe add trait which each decoder implements (functions like decode or something)
 
 fn main() {
     // Written by 0x6d70
@@ -15,9 +18,9 @@ fn main() {
 
     let path = Path::new(&args[1]);
 
-    let file_contents = file::read_file(path).unwrap();
+    let wav_decoder = WavDecoder::new(path);
 
-    let decode_result = clarus_wav::decode::decode(file_contents);
+    let decode_result = wav_decoder.decode();
 
     println!("after decode");
 
