@@ -5,11 +5,11 @@ use std::time::Instant;
 
 pub struct WavDecoder {
 
-    reader: WavReader,
-    format: u16,
-    channels: u16,
-    sample_rate: u32,
-    bitdepth: u16
+    pub reader: WavReader,
+    pub format: u16,
+    pub channels: u16,
+    pub sample_rate: u32,
+    pub bitdepth: u16
     // samples: decoded data
 
 }
@@ -26,6 +26,7 @@ impl WavDecoder {
         }
     }
 
+    // Maybe put the sampled data into the struct and just return empty result or error
     pub fn decode(&mut self) -> Result<(u32, Vec<i16>), Error> {
         // Files from qobuz use id3v2
 

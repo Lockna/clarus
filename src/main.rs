@@ -49,7 +49,7 @@ fn main() {
     
 
     stream_handle
-        .play_raw(SamplesBuffer::new(2, 44100 as u32, f))
+        .play_raw(SamplesBuffer::new(wav_decoder.channels, 44100 as u32, f))
         .expect("Failed to play");
 
     println!("{:?}", now.elapsed());
