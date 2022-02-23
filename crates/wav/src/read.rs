@@ -12,10 +12,6 @@ pub struct WavReader {
 
 }
 
-// Implement functions like read_u16_le (little endian or big endian)
-// seek and so on
-// set to position in data vector
-
 impl WavReader {
 
     pub fn new(path: &Path) -> Self {
@@ -49,7 +45,12 @@ impl WavReader {
 
     pub fn read_i16_le(&mut self) -> i16 {
 
-        let ret = LittleEndian::read_i16(&self.data[self.cursor..self.cursor+2]);
+        //let ret = LittleEndian::read_i16(&self.data[self.cursor..self.cursor+2]);
+
+        // in debug "my" version is taking half the time of byteorder crate
+        // in release mine is about 5ms slower than byteorder
+
+        let ret = (self.data[self.cursor+1] as i16) << 8 | self.data[self.cursor] as i16;
 
         self.cursor += 2;
 
@@ -76,6 +77,10 @@ impl WavReader {
 
     pub fn size(&self) -> usize {
         self.data.len()
+    }
+
+    pub fn reset(&mut self) {
+        self.cursor = 0;
     }
 
 }

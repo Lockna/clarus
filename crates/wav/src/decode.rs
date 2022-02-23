@@ -1,6 +1,7 @@
 use clarus_utils::errors::Error;
 use crate::read::WavReader;
 use std::path::Path;
+use std::time::Instant;
 
 pub struct WavDecoder {
 
@@ -118,11 +119,13 @@ impl WavDecoder {
 
         println!("{}", data_size);
     
+        let now = Instant::now();
+
         for _ in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
-            let sample_value = self.reader.read_i16_le();
-    
-            channel_data.push(sample_value);
+            channel_data.push(self.reader.read_i16_le());
         }
+
+        println!("{:?}", now.elapsed());
 
         println!("{}", channel_data.len());
 
