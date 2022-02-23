@@ -18,7 +18,7 @@ fn main() {
 
     let path = Path::new(&args[1]);
 
-    let wav_decoder = WavDecoder::new(path);
+    let mut wav_decoder = WavDecoder::new(path);
 
     let decode_result = wav_decoder.decode();
 
