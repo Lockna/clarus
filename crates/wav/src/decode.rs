@@ -118,7 +118,7 @@ impl WavDecoder {
 
         println!("{}", data_size);
     
-        for i in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
+        for _ in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
             let sample_value = self.reader.read_i16_le();
     
             channel_data.push(sample_value);
