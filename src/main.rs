@@ -18,24 +18,27 @@ fn main() {
 
     let file_contents = read_file(path).unwrap();
 
-    let (song_length, channel_data) = clarus_wav::decode::decode(file_contents).unwrap();
+    let decode_result = clarus_wav::decode::decode(file_contents);
 
-    //match clarus_wav::decode::decode(file_contents) {
-    //    Err(InvalidWAVFile) => println!("invalid"),
-    //    Ok((song_length, channel_data)) =>
-    //}
+    println!("after decode");
+
+    if let Err(error) = decode_result {
+        println!("{:?}", error);
+        return;
+    }
+
+    let (song_length, channel_data) = decode_result.unwrap();
 
     let (_stream, stream_handle) = OutputStream::try_default().expect("Failed to open stream");
 
-    let mut f = Vec::new();
+    let mut f = Vec::with_capacity(channel_data.len());
 
-    for i in (0..channel_data.len()).step_by(2) {
-        // Figure out why divide by i16::MAX
+    for i in 0..channel_data.len() {
         f.push(channel_data[i] as f32 / i16::MAX as f32);
     }
 
     stream_handle
-        .play_raw(SamplesBuffer::new(1, 44100 as u32, f))
+        .play_raw(SamplesBuffer::new(2, 44100 as u32, f))
         .expect("Failed to play");
 
     thread::sleep(Duration::from_millis(song_length as u64 * 1000));

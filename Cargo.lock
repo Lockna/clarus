@@ -118,6 +118,7 @@ dependencies = [
 name = "clarus"
 version = "0.1.0"
 dependencies = [
+ "clarus-utils",
  "clarus-wav",
  "cpal",
  "rodio",
