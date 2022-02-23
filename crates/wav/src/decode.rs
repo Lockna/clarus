@@ -3,13 +3,24 @@ use byteorder::LittleEndian;
 use clarus_utils::errors::Error;
 use clarus_utils::pattern;
 use std::str;
+use crate::read::WavReader;
+
+pub struct WavDecoder {
+
+    reader: WavReader,
+    format: u16,
+    channels: u16,
+    sample_rate: u32,
+    bitdepth: u16
+    // samples: decoded data
+
+}
 
 pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
     // Files from qobuz use id3v2
-
     let fmt_start = pattern::find_signature_index(&contents, b"fmt ").unwrap();
 
-    println!("{:?}", fmt_start);
+    //println!("{:?}", fmt_start);
 
     let riff_str = str::from_utf8(&contents[0..4]).unwrap();
 
@@ -17,7 +28,7 @@ pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
         return Err(Error::InvalidWAVFile);
     }
 
-    println!("{}", riff_str);
+    //println!("{}", riff_str);
 
     let chunk_size = LittleEndian::read_u32(&contents[4..8]);
 
@@ -35,15 +46,15 @@ pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
         return Err(Error::InvalidWAVFile);
     }
 
-    println!("{}", wave_str);
+    //println!("{}", wave_str);
 
     let fmt_str = str::from_utf8(&contents[fmt_start..fmt_start + 4]).unwrap();
 
-    println!("{}", fmt_str);
+    //println!("{}", fmt_str);
 
     let fmt_size = LittleEndian::read_u32(&contents[fmt_start + 4..fmt_start + 8]);
 
-    println!("fmt_size: {}", fmt_size);
+    //println!("fmt_size: {}", fmt_size);
 
     let fmt_format_code = LittleEndian::read_u16(&contents[fmt_start + 8..fmt_start + 10]);
 
@@ -69,6 +80,7 @@ pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
 
     println!("fmt_bits_sample: {}", fmt_bits_sample);
 
+    // TODO: search properly for data begin
     let data_chunk_begin = fmt_start + 24;
 
     let data_str = str::from_utf8(&contents[data_chunk_begin..data_chunk_begin + 4]).unwrap();
@@ -87,11 +99,8 @@ pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
 
     println!("length of song: {} seconds", samples / fmt_sample_rate);
 
-    // Change to stereo instead of mono channel
+    let mut channel_data: Vec<i16> = Vec::with_capacity(data_size as usize);
 
-    let mut channel_data: Vec<i16> = Vec::new();
-
-    println!("{:?}", contents.len());
     println!("{}", data_begin);
     println!("{}", data_size);
 
@@ -103,4 +112,12 @@ pub fn decode(contents: Vec<u8>) -> Result<(u32, Vec<i16>), Error> {
     }
 
     Ok((samples / fmt_sample_rate, channel_data))
+}
+
+impl WavDecoder {
+
+    pub fn new() {
+        
+    }
+
 }
