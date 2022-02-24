@@ -9,8 +9,8 @@ pub struct WavDecoder {
     pub format: u16,
     pub channels: u16,
     pub sample_rate: u32,
-    pub bitdepth: u16
-    // samples: decoded data
+    pub bitdepth: u16,
+    pub track_length: u32
 
 }
 
@@ -22,15 +22,13 @@ impl WavDecoder {
             format: 0,
             channels: 0,
             sample_rate: 0,
-            bitdepth: 0
+            bitdepth: 0,
+            track_length: 0
         }
     }
 
-    // Maybe put the sampled data into the struct and just return empty result or error
-    pub fn decode(&mut self) -> Result<(u32, Vec<i16>), Error> {
+    pub fn decode(&mut self) -> Result<Vec<i16>, Error> {
         // Files from qobuz use id3v2
-
-        //let fmt_start = pattern::find_signature_index(&contents, b"fmt ").unwrap();
     
         let riff_str = self.reader.read_str();
     
@@ -114,6 +112,8 @@ impl WavDecoder {
     
         println!("all samples: {}", samples);
     
+        self.track_length = samples / fmt_bits_sample as u32;
+
         println!("length of song: {} seconds", samples / fmt_sample_rate);
     
         let mut channel_data: Vec<i16> = Vec::with_capacity(data_size as usize / 2 as usize);
@@ -130,7 +130,7 @@ impl WavDecoder {
 
         println!("{}", channel_data.len());
 
-        Ok((samples / fmt_sample_rate, channel_data))
+        Ok(channel_data)
 
     }
 

@@ -29,7 +29,7 @@ fn main() {
         return;
     }
 
-    let (song_length, channel_data) = decode_result.unwrap();
+    let channel_data = decode_result.unwrap();
 
     let (_stream, stream_handle) = OutputStream::try_default().expect("Failed to open stream");
 
@@ -54,5 +54,5 @@ fn main() {
 
     println!("{:?}", now.elapsed());
 
-    thread::sleep(Duration::from_millis(song_length as u64 * 1000));
+    thread::sleep(Duration::from_millis(wav_decoder.track_length as u64 * 1000));
 }
