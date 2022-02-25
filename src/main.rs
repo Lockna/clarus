@@ -37,22 +37,15 @@ fn main() {
 
     let now = Instant::now();
 
-    // for i in 0..channel_data.len() {
-    //     f.push(channel_data[i] as f32 / i16::MAX as f32);
-    // }
+    f.extend(channel_data.into_iter().map(|i| i as f32 / i16::MAX as f32));
     
-    // code below is roughly 2x faster than code above
-
-    for i in channel_data.iter() {
-        f.push(*i as f32 / i16::MAX as f32);
-    }
-    
+    println!("{:?}", now.elapsed());
 
     stream_handle
         .play_raw(SamplesBuffer::new(wav_decoder.channels, 44100 as u32, f))
         .expect("Failed to play");
 
-    println!("{:?}", now.elapsed());
+    
 
     thread::sleep(Duration::from_millis(wav_decoder.track_length as u64 * 1000));
 }
