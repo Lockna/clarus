@@ -126,11 +126,12 @@ impl WavDecoder {
 
         println!("{}", data_size);
 
-        if data_size != samples * fmt_num_channels as u32 * fmt_bits_sample as u32 / 8 {
-            return Err(InvalidWaveFile::InvalidDataSize);
+        // FIXME: sowehow rammstein has wrong data size, maybe wrong read?!?!?!?
+        if data_size as u64 != (samples as u64 * fmt_num_channels as u64 * fmt_bits_sample as u64 / 8) as u64 {
+           return Err(InvalidWaveFile::InvalidDataSize);
         }
     
-        self.track_length = samples / fmt_bits_sample as u32;
+        self.track_length = samples / fmt_sample_rate as u32;
 
         println!("length of song: {} seconds", samples / fmt_sample_rate);
     
