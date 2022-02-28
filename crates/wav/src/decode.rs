@@ -1,4 +1,4 @@
-use clarus_utils::errors::Error;
+use clarus_utils::errors::InvalidWaveFile;
 use crate::read::WavReader;
 use std::path::Path;
 use std::time::Instant;
@@ -27,13 +27,13 @@ impl WavDecoder {
         }
     }
 
-    pub fn decode(&mut self) -> Result<Vec<i16>, Error> {
+    pub fn decode(&mut self) -> Result<Vec<i16>, InvalidWaveFile> {
         // Files from qobuz use id3v2
     
         let riff_str = self.reader.read_str();
     
         if riff_str != "RIFF" {
-            return Err(Error::InvalidWAVFile);
+            return Err(InvalidWaveFile::RIFFStringNotFound);
         }
     
         println!("{}", riff_str);
@@ -41,7 +41,7 @@ impl WavDecoder {
         let chunk_size = self.reader.read_u32_le();
     
         if chunk_size != self.reader.size() as u32 - 8 {
-           return Err(Error::InvalidWAVFile);
+           return Err(InvalidWaveFile::InvalidFileChunkSize);
         }
     
         println!("{}", self.reader.size());
@@ -51,7 +51,7 @@ impl WavDecoder {
         let wave_str = self.reader.read_str();
     
         if wave_str != "WAVE" {
-           return Err(Error::InvalidWAVFile);
+           return Err(InvalidWaveFile::WavStringNotFound);
         }
     
         println!("{}", wave_str);
@@ -61,6 +61,10 @@ impl WavDecoder {
         let fmt_str = self.reader.read_str();
     
         println!("{}", fmt_str);
+
+        if fmt_str != "fmt " {
+            return Err(InvalidWaveFile::FmtStringNotFound);
+        }
     
         let fmt_size = self.reader.read_u32_le();
     
@@ -97,7 +101,15 @@ impl WavDecoder {
         println!("fmt_bits_sample: {}", fmt_bits_sample);
 
         self.bitdepth = fmt_bits_sample;
+
+        if fmt_byte_rate != fmt_sample_rate * fmt_num_channels as u32 * fmt_bits_sample as u32/8 {
+            return Err(InvalidWaveFile::InvalidByteRate);
+        }
     
+        if fmt_block_align != fmt_num_channels * fmt_bits_sample/8 {
+            return Err(InvalidWaveFile::InvalidBlockAlign);
+        }
+
         self.reader.seek_to_pattern(b"data");
     
         let data_str = self.reader.read_str();
@@ -111,6 +123,12 @@ impl WavDecoder {
         let samples = data_size / fmt_num_channels as u32 / (fmt_bits_sample as u32 / 8);
     
         println!("all samples: {}", samples);
+
+        println!("{}", data_size);
+
+        if data_size != samples * fmt_num_channels as u32 * fmt_bits_sample as u32 / 8 {
+            return Err(InvalidWaveFile::InvalidDataSize);
+        }
     
         self.track_length = samples / fmt_bits_sample as u32;
 

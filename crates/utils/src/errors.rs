@@ -2,6 +2,16 @@
 
 #[derive(Debug, Clone, Copy)]
 pub enum Error {
-    InvalidWAVFile,
     IndexOfChunkNotFound,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum InvalidWaveFile {
+    RIFFStringNotFound,
+    InvalidFileChunkSize,
+    WavStringNotFound,
+    FmtStringNotFound,
+    InvalidByteRate,
+    InvalidBlockAlign,
+    InvalidDataSize,
 }
