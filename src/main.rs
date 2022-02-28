@@ -46,6 +46,6 @@ fn main() {
         .expect("Failed to play");
 
     
-
-    thread::sleep(Duration::from_millis(wav_decoder.track_length as u64 * 1000));
+    thread::sleep(Duration::from_secs(wav_decoder.track_length as u64));
+    
 }
