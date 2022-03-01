@@ -9,6 +9,13 @@ This is mainly written for the learning effect and therefore I won't program an 
 
 Additionally I will switch in the later course (also because of the learning effect) from cpal to an own written audiolib, because also one of the goals is to achieve bit-perfect audio playback which some audiophiles ask for ;)
 
+## Milestones
+- [ ] Fully implement a wav decoder according to spec
+- [ ] Write an id3-parser so a TUI can use this to show song metadata
+- [ ] Implement the flac decoder for flac support
+- [ ] Add mp3 support
+- [ ] Implement and switch to own audio-playback library
+
 ## Components
  - [`flac`](./crates/flac): FLAC encoder/decoder
  - [`mp3`](./crates/mp3): MP3 encoder/decoder
