@@ -29,6 +29,18 @@ impl WavReader {
         self.cursor = pattern::find_signature_index(&self.data, pattern).unwrap();
     }
 
+    pub fn seek_to_chunk(&mut self, pattern: &[u8]) {
+        let mut finished = false;
+        while !finished {
+            if &self.data[self.cursor .. self.cursor + pattern.len()] == pattern {
+                finished = true;
+            } else {
+                self.cursor += 4;
+                self.cursor += self.read_u32_le() as usize;
+            }
+        }
+    }
+
     pub fn seek_forward(&mut self, inc_by: usize) {
         self.cursor += inc_by;
     }

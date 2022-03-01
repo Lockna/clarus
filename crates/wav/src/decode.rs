@@ -110,7 +110,8 @@ impl WavDecoder {
             return Err(InvalidWaveFile::InvalidBlockAlign);
         }
 
-        self.reader.seek_to_pattern(b"data");
+        // TODO: rewrite seek_to_chunk or find better option
+        self.reader.seek_to_chunk(b"data");
     
         let data_str = self.reader.read_str();
     
@@ -126,7 +127,6 @@ impl WavDecoder {
 
         println!("{}", data_size);
 
-        // FIXME: sowehow rammstein has wrong data size, maybe wrong read?!?!?!?
         if data_size as u64 != (samples as u64 * fmt_num_channels as u64 * fmt_bits_sample as u64 / 8) as u64 {
            return Err(InvalidWaveFile::InvalidDataSize);
         }
