@@ -1,7 +1,11 @@
-use clarus_utils::errors::InvalidWaveFile;
+use clarus_utils::errors::WaveError;
 use crate::read::WavReader;
 use std::path::Path;
 use std::time::Instant;
+
+const PCM_FORMAT: u16 = 0x0001;
+const IEEE_FLOAT: u16 = 0x0003;
+const EXTENSIBLE_FORMAT: u16 = 0xFFFE;
 
 pub struct WavDecoder {
 
@@ -27,13 +31,13 @@ impl WavDecoder {
         }
     }
 
-    pub fn decode(&mut self) -> Result<Vec<i16>, InvalidWaveFile> {
+    pub fn decode(&mut self) -> Result<Vec<f32>, WaveError> {
         // Files from qobuz use id3v2
     
         let riff_str = self.reader.read_str();
     
         if riff_str != "RIFF" {
-            return Err(InvalidWaveFile::RIFFStringNotFound);
+            return Err(WaveError::RIFFStringNotFound);
         }
     
         println!("{}", riff_str);
@@ -41,7 +45,7 @@ impl WavDecoder {
         let chunk_size = self.reader.read_u32_le();
     
         if chunk_size != self.reader.size() as u32 - 8 {
-           return Err(InvalidWaveFile::InvalidFileChunkSize);
+           return Err(WaveError::InvalidFileChunkSize);
         }
     
         println!("{}", self.reader.size());
@@ -51,7 +55,7 @@ impl WavDecoder {
         let wave_str = self.reader.read_str();
     
         if wave_str != "WAVE" {
-           return Err(InvalidWaveFile::WavStringNotFound);
+           return Err(WaveError::WavStringNotFound);
         }
     
         println!("{}", wave_str);
@@ -63,18 +67,26 @@ impl WavDecoder {
         println!("{}", fmt_str);
 
         if fmt_str != "fmt " {
-            return Err(InvalidWaveFile::FmtStringNotFound);
+            return Err(WaveError::FmtStringNotFound);
         }
     
         let fmt_size = self.reader.read_u32_le();
     
         println!("fmt_size: {}", fmt_size);
+
+        if ![16,18,40].contains(&fmt_size) {
+            return Err(WaveError::InvalidFormatSize);
+        }
     
         let fmt_format_code = self.reader.read_u16_le();
     
         println!("fmt_format_code: {}", fmt_format_code);
 
         self.format = fmt_format_code;
+
+        if !(self.format == PCM_FORMAT || self.format == EXTENSIBLE_FORMAT || self.format == IEEE_FLOAT) {
+            return Err(WaveError::UnsupportedFormat);
+        }
     
         let fmt_num_channels = self.reader.read_u16_le();
     
@@ -103,11 +115,11 @@ impl WavDecoder {
         self.bitdepth = fmt_bits_sample;
 
         if fmt_byte_rate != fmt_sample_rate * fmt_num_channels as u32 * fmt_bits_sample as u32/8 {
-            return Err(InvalidWaveFile::InvalidByteRate);
+            return Err(WaveError::InvalidByteRate);
         }
     
         if fmt_block_align != fmt_num_channels * fmt_bits_sample/8 {
-            return Err(InvalidWaveFile::InvalidBlockAlign);
+            return Err(WaveError::InvalidBlockAlign);
         }
 
         // TODO: rewrite seek_to_chunk or find better option
@@ -128,21 +140,29 @@ impl WavDecoder {
         println!("{}", data_size);
 
         if data_size as u64 != (samples as u64 * fmt_num_channels as u64 * fmt_bits_sample as u64 / 8) as u64 {
-           return Err(InvalidWaveFile::InvalidDataSize);
+           return Err(WaveError::InvalidDataSize);
         }
     
         self.track_length = samples / fmt_sample_rate as u32;
 
         println!("length of song: {} seconds", samples / fmt_sample_rate);
     
-        let mut channel_data: Vec<i16> = Vec::with_capacity(data_size as usize / 2 as usize);
+        let mut channel_data: Vec<f32> = Vec::with_capacity(data_size as usize / 2 as usize);
 
         println!("{}", data_size);
     
         let now = Instant::now();
 
-        for _ in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
-            channel_data.push(self.reader.read_i16_le());
+        if self.format == PCM_FORMAT {
+
+            for _ in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
+                channel_data.push(self.reader.read_i16_le() as f32 / i16::MAX as f32);
+            }
+
+        } else if self.format == IEEE_FLOAT {
+            // TODO: Get a float test file and implement decoding
+        } else if self.format == EXTENSIBLE_FORMAT {
+            // TODO: Get an extensible format test file and implement decdoing
         }
 
         println!("{:?}", now.elapsed());
