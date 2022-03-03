@@ -1,4 +1,5 @@
 //type Result<T> = std::result::Result<T, Error>;
+use std::fmt;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Error {
@@ -6,12 +7,23 @@ pub enum Error {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum InvalidWaveFile {
+pub enum WaveError {
     RIFFStringNotFound,
     InvalidFileChunkSize,
     WavStringNotFound,
     FmtStringNotFound,
+    InvalidFormatSize,
     InvalidByteRate,
     InvalidBlockAlign,
     InvalidDataSize,
+    UnsupportedFormat,
+    UnsupportedChannelNumber
 }
+
+impl fmt::Display for WaveError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
+impl std::error::Error for WaveError {}
