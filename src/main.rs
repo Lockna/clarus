@@ -1,7 +1,7 @@
 use rodio::{buffer::SamplesBuffer, OutputStream};
 use std::path::Path;
 use std::thread;
-use std::time::{Instant, Duration};
+use std::time::Duration;
 use clarus_wav::decode::WavDecoder;
 
 // ideas:
@@ -33,16 +33,10 @@ fn main() {
 
     let (_stream, stream_handle) = OutputStream::try_default().expect("Failed to open stream");
 
-    let mut f = Vec::with_capacity(channel_data.len());
-
-    let now = Instant::now();
-
-    f.extend(channel_data.into_iter().map(|i| i as f32 / i16::MAX as f32));
-    
-    println!("{:?}", now.elapsed());
+    //f.extend(channel_data.into_iter().map(|i| i as f32 / i16::MAX as f32));
 
     stream_handle
-        .play_raw(SamplesBuffer::new(wav_decoder.channels, 44100 as u32, f))
+        .play_raw(SamplesBuffer::new(wav_decoder.channels, 44100 as u32, channel_data))
         .expect("Failed to play");
 
     
