@@ -17,7 +17,8 @@ pub enum WaveError {
     InvalidBlockAlign,
     InvalidDataSize,
     UnsupportedFormat,
-    UnsupportedChannelNumber
+    UnsupportedChannelNumber,
+    ChunkNotFound,
 }
 
 impl fmt::Display for WaveError {
