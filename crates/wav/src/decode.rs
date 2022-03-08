@@ -1,4 +1,5 @@
 use clarus_utils::errors::WaveError;
+use clarus_utils::decoder::Decoder;
 use crate::read::WavReader;
 use std::path::Path;
 use std::time::Instant;
@@ -31,7 +32,10 @@ impl WavDecoder {
         }
     }
 
-    pub fn decode(&mut self) -> Result<Vec<f32>, WaveError> {
+}
+
+impl Decoder for WavDecoder {
+    fn decode(&mut self) -> Result<Vec<f32>, WaveError> {
         // Files from qobuz use id3v2
     
         let riff_str = self.reader.read_str();
@@ -123,7 +127,7 @@ impl WavDecoder {
         }
 
         // TODO: rewrite seek_to_chunk or find better option
-        self.reader.seek_to_chunk(b"data");
+        self.reader.seek_to_chunk(b"data")?;
     
         let data_str = self.reader.read_str();
     
@@ -154,7 +158,7 @@ impl WavDecoder {
         let now = Instant::now();
 
         if self.format == PCM_FORMAT {
-
+            // TODO: Differ between various bit_depth values
             for _ in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
                 channel_data.push(self.reader.read_i16_le() as f32 / i16::MAX as f32);
             }
@@ -172,5 +176,4 @@ impl WavDecoder {
         Ok(channel_data)
 
     }
-
 }
