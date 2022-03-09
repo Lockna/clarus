@@ -17,6 +17,7 @@ pub enum WaveError {
     InvalidBlockAlign,
     InvalidDataSize,
     UnsupportedFormat,
+    UnsupportedBitDepth,
     UnsupportedChannelNumber,
     ChunkNotFound,
 }
