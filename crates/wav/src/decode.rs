@@ -118,6 +118,10 @@ impl Decoder for WavDecoder {
 
         self.bitdepth = fmt_bits_sample;
 
+        if ![8,16,24,32].contains(&self.bitdepth) {
+            return Err(WaveError::UnsupportedBitDepth)
+        }
+
         if fmt_byte_rate != fmt_sample_rate * fmt_num_channels as u32 * fmt_bits_sample as u32/8 {
             return Err(WaveError::InvalidByteRate);
         }
@@ -158,9 +162,15 @@ impl Decoder for WavDecoder {
         let now = Instant::now();
 
         if self.format == PCM_FORMAT {
-            // TODO: Differ between various bit_depth values
-            for _ in (0..data_size).step_by((fmt_bits_sample / 8) as usize) {
-                channel_data.push(self.reader.read_i16_le() as f32 / i16::MAX as f32);
+
+            if self.bitdepth == 16 {
+                channel_data = self.reader.values_i16_as_f32(data_size);
+            } else if self.bitdepth == 8 {
+                channel_data = self.reader.values_u8_as_f32(data_size);
+            } else if self.bitdepth == 24 {
+                channel_data = self.reader.values_i24_as_f32(data_size);
+            } else if self.bitdepth == 32 {
+                channel_data = self.reader.values_i32_as_f32(data_size);
             }
 
         } else if self.format == IEEE_FLOAT {
