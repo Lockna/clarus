@@ -174,7 +174,14 @@ impl Decoder for WavDecoder {
             }
 
         } else if self.format == IEEE_FLOAT {
-            // TODO: Get a float test file and implement decoding
+            
+            if self.bitdepth == 32 {
+                channel_data = self.reader.values_f32(data_size);
+            } else if self.bitdepth == 64 {
+                // FIXME: find good way to play f64 wav files
+                // channel_data = self.reader.values_f64(data_size);
+            }
+
         } else if self.format == EXTENSIBLE_FORMAT {
             // TODO: Get an extensible format test file and implement decdoing
         }

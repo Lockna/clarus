@@ -113,6 +113,14 @@ impl WavReader {
         ret
     }
 
+    pub fn read_f32_le(&mut self) -> f32 {
+        let ret = LittleEndian::read_f32(&self.data[self.cursor..self.cursor+4]);
+
+        self.cursor += 4;
+
+        ret
+    }
+
     pub fn read_str(&mut self) -> &str {
         let ret = str::from_utf8(&self.data[self.cursor..self.cursor+4]).unwrap();
         self.cursor += 4;
@@ -166,6 +174,22 @@ impl WavReader {
         }
 
         values
+    }
+
+    pub fn values_f32(&mut self, data_size: u32) -> Vec<f32> {
+        let mut values: Vec<f32> = Vec::new();
+
+        for _ in (0..data_size).step_by((32 / 8) as usize) {
+            values.push(self.read_f32_le());
+        }
+
+        values
+    }
+
+    pub fn values_f64(&mut self, data_size: u32) {
+        // TODO: Figure out how to play f64 values
+        // convert to f32 and lose precision?
+
     }
 
 }
