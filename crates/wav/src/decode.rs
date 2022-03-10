@@ -8,6 +8,8 @@ const PCM_FORMAT: u16 = 0x0001;
 const IEEE_FLOAT: u16 = 0x0003;
 const EXTENSIBLE_FORMAT: u16 = 0xFFFE;
 
+const I24_MAX: i32 = 16777215;
+
 pub struct WavDecoder {
 
     pub reader: WavReader,
@@ -163,24 +165,27 @@ impl Decoder for WavDecoder {
 
         if self.format == PCM_FORMAT {
 
-            if self.bitdepth == 16 {
-                channel_data = self.reader.values_i16_as_f32(data_size);
-            } else if self.bitdepth == 8 {
-                channel_data = self.reader.values_u8_as_f32(data_size);
-            } else if self.bitdepth == 24 {
-                channel_data = self.reader.values_i24_as_f32(data_size);
-            } else if self.bitdepth == 32 {
-                channel_data = self.reader.values_i32_as_f32(data_size);
-            }
-
+            channel_data.extend(
+                (0..data_size)
+                    .step_by((fmt_bits_sample / 8) as usize)
+                    .map(|_| match self.bitdepth {
+                        8 => self.reader.read_u8() as f32 / u8::MAX as f32,
+                        16 => self.reader.read_i16_le() as f32 / i16::MAX as f32,
+                        24 => self.reader.read_i24_le() as f32 / I24_MAX as f32,
+                        32 => self.reader.read_i32_le() as f32 / i32::MAX as f32,
+                        _ => unreachable!(),
+                    }),
+            )
         } else if self.format == IEEE_FLOAT {
             
-            if self.bitdepth == 32 {
-                channel_data = self.reader.values_f32(data_size);
-            } else if self.bitdepth == 64 {
-                // FIXME: find good way to play f64 wav files
-                // channel_data = self.reader.values_f64(data_size);
-            }
+            channel_data.extend(
+                (0..data_size)
+                    .step_by((fmt_bits_sample/8) as usize)
+                    .map(|_| match self.bitdepth {
+                        16 => self.reader.read_f32_le(),
+                        _ => unreachable!(),
+                    }),
+            )
 
         } else if self.format == EXTENSIBLE_FORMAT {
             // TODO: Get an extensible format test file and implement decdoing

@@ -5,7 +5,7 @@ use byteorder::LittleEndian;
 use clarus_utils::{pattern, errors::WaveError};
 use std::str;
 
-const I24_MAX: i32 = 16777215;
+
 
 pub struct WavReader {
     pub data: Vec<u8>,
@@ -134,62 +134,6 @@ impl WavReader {
 
     pub fn reset(&mut self) {
         self.cursor = 0;
-    }
-
-    pub fn values_u8_as_f32(&mut self, data_size: u32) -> Vec<f32> {
-        let mut values: Vec<f32> = Vec::new();
-
-        for _ in 0..data_size {
-            values.push(self.read_u8() as f32 / u8::MAX as f32);
-        }
-
-        values
-    }
-
-    pub fn values_i16_as_f32(&mut self, data_size: u32) -> Vec<f32> {
-        let mut values: Vec<f32> = Vec::new();
-
-        for _ in (0..data_size).step_by((16 / 8) as usize) {
-            values.push(self.read_i16_le() as f32 / i16::MAX as f32);
-        }
-
-        values
-    }
-
-    pub fn values_i24_as_f32(&mut self, data_size: u32) -> Vec<f32> {
-        let mut values: Vec<f32> = Vec::new();
-
-        for _ in (0..data_size).step_by((24 / 8) as usize) {
-            values.push(self.read_i24_le() as f32 / I24_MAX as f32);
-        }
-
-        values
-    }
-
-    pub fn values_i32_as_f32(&mut self, data_size: u32) -> Vec<f32> {
-        let mut values: Vec<f32> = Vec::new();
-
-        for _ in (0..data_size).step_by((32 / 8) as usize) {
-            values.push(self.read_i32_le() as f32 / i32::MAX as f32);
-        }
-
-        values
-    }
-
-    pub fn values_f32(&mut self, data_size: u32) -> Vec<f32> {
-        let mut values: Vec<f32> = Vec::new();
-
-        for _ in (0..data_size).step_by((32 / 8) as usize) {
-            values.push(self.read_f32_le());
-        }
-
-        values
-    }
-
-    pub fn values_f64(&mut self, data_size: u32) {
-        // TODO: Figure out how to play f64 values
-        // convert to f32 and lose precision?
-
     }
 
 }
