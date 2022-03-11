@@ -19,6 +19,8 @@ Additionally I will switch in the later course (also because of the learning eff
 ## Components
  - [`flac`](./crates/flac): FLAC encoder/decoder
  - [`mp3`](./crates/mp3): MP3 encoder/decoder
+ - [`utils`](./crates/utils): Util crate which has utility structs and functions useful for all other crates
+ - [`wav`](./crates/wav): Own wav decoding library
  - [`playback`](./crates/playback): Audio playback which aims for bit-perfect playback
 
 ## Setup
