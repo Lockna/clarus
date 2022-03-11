@@ -4,16 +4,25 @@ use std::thread;
 use std::time::Duration;
 use clarus_wav::decode::WavDecoder;
 use clarus_utils::decoder::Decoder;
+use clarus_utils::errors::ClarusError;
 
-fn main() {
+fn main() -> Result<(), ClarusError> {
     let args: Vec<String> = std::env::args().collect();
 
     if args.len() < 2 {
         println!("Usage: clarus <filename>");
-        return;
+        return Err(ClarusError::NoFile);
     }
 
     let path = Path::new(&args[1]);
+
+    if !path.exists() {
+        return Err(ClarusError::FileNotFound);
+    }
+
+    if !path.is_file() {
+        return Err(ClarusError::NotAFile);
+    }
 
     let mut wav_decoder = WavDecoder::new(path);
 
@@ -23,7 +32,7 @@ fn main() {
 
     if let Err(error) = decode_result {
         println!("{:?}", error);
-        return;
+        return Err(ClarusError::DecodingFailed);
     }
 
     let channel_data = decode_result.unwrap();
@@ -38,4 +47,6 @@ fn main() {
     
     thread::sleep(Duration::from_secs(wav_decoder.track_length as u64));
     
+
+    Ok(())
 }
