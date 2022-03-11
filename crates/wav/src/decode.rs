@@ -1,6 +1,6 @@
 use clarus_utils::errors::WaveError;
 use clarus_utils::decoder::Decoder;
-use crate::read::WavReader;
+use clarus_utils::reader::Reader;
 use std::path::Path;
 use std::time::Instant;
 
@@ -12,7 +12,7 @@ const I24_MAX: i32 = 16777215;
 
 pub struct WavDecoder {
 
-    pub reader: WavReader,
+    pub reader: Reader,
     pub format: u16,
     pub channels: u16,
     pub sample_rate: u32,
@@ -25,7 +25,7 @@ impl WavDecoder {
 
     pub fn new(path: &Path) -> Self {
         WavDecoder {
-            reader: WavReader::new(path),
+            reader: Reader::new(path),
             format: 0,
             channels: 0,
             sample_rate: 0,
