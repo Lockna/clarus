@@ -29,3 +29,19 @@ impl fmt::Display for WaveError {
 }
 
 impl std::error::Error for WaveError {}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ClarusError {
+    FileNotFound,
+    NotAFile,
+    NoFile,
+    DecodingFailed
+}
+
+impl fmt::Display for ClarusError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
+impl std::error::Error for ClarusError {}
