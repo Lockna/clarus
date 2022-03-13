@@ -8,8 +8,6 @@ const PCM_FORMAT: u16 = 0x0001;
 const IEEE_FLOAT: u16 = 0x0003;
 const EXTENSIBLE_FORMAT: u16 = 0xFFFE;
 
-const I24_MAX: i32 = 16777215;
-
 pub struct WavDecoder {
 
     pub reader: Reader,
@@ -171,7 +169,7 @@ impl Decoder for WavDecoder {
                     .map(|_| match self.bitdepth {
                         8 => self.reader.read_u8() as f32 / u8::MAX as f32,
                         16 => self.reader.read_i16_le() as f32 / i16::MAX as f32,
-                        24 => self.reader.read_i24_le() as f32 / I24_MAX as f32,
+                        24 => self.reader.read_i24_le() as f32 / i32::MAX as f32,
                         32 => self.reader.read_i32_le() as f32 / i32::MAX as f32,
                         _ => unreachable!(),
                     }),

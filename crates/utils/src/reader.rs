@@ -89,6 +89,8 @@ impl Reader {
 
         ret |= (self.data[self.cursor-1] as i32) << 16 as i32;
 
+        ret = ret << 8;
+
         ret
 
     }
