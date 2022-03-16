@@ -28,8 +28,6 @@ fn main() -> Result<(), ClarusError> {
 
     let decode_result = wav_decoder.decode();
 
-    println!("after decode");
-
     if let Err(error) = decode_result {
         println!("{:?}", error);
         return Err(ClarusError::DecodingFailed);

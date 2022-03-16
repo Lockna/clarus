@@ -188,7 +188,8 @@ impl Decoder for WavDecoder {
             )
 
         } else if self.format == EXTENSIBLE_FORMAT {
-            // TODO: Get an extensible format test file and implement decdoing
+            // TODO: Get an extensible format test file and implement decoding
+            unimplemented!();
         }
 
         println!("{:?}", now.elapsed());
