@@ -118,7 +118,7 @@ impl Decoder for WavDecoder {
 
         self.bitdepth = fmt_bits_sample;
 
-        if ![8,16,24,32].contains(&self.bitdepth) {
+        if ![8,16,24,32,64].contains(&self.bitdepth) {
             return Err(WaveError::UnsupportedBitDepth)
         }
 
@@ -180,7 +180,9 @@ impl Decoder for WavDecoder {
                 (0..data_size)
                     .step_by((fmt_bits_sample/8) as usize)
                     .map(|_| match self.bitdepth {
-                        16 => self.reader.read_f32_le(),
+                        32 => self.reader.read_f32_le(),
+                        // FIXME: Make 64 conversion lossless
+                        64 => self.reader.read_f64_le() as f32,
                         _ => unreachable!(),
                     }),
             )

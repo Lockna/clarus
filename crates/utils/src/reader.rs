@@ -27,7 +27,7 @@ impl Reader {
         self.cursor = pattern::find_signature_index(&self.data, pattern).unwrap();
     }
 
-    pub fn seek_to_chunk(&mut self, pattern: &[u8])-> Result<(), WaveError> {
+    pub fn seek_to_chunk(&mut self, pattern: &[u8]) -> Result<(), WaveError> {
         while self.cursor < self.data.len() {
             if &self.data[self.cursor .. self.cursor + pattern.len()] == pattern {
                 return Ok(())
@@ -119,6 +119,16 @@ impl Reader {
         self.cursor += 4;
 
         ret
+    }
+
+    pub fn read_f64_le(&mut self) -> f64 {
+
+        let ret = LittleEndian::read_f64(&self.data[self.cursor..self.cursor+8]);
+
+        self.cursor += 8;
+
+        ret
+
     }
 
     pub fn read_str(&mut self) -> &str {
